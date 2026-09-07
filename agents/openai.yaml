@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orchestrate Development V3"
+  short_description: "Luna Max root with autonomous Astra Low workers"
+  default_prompt: "Use $orchestrate-development-v3 to execute this substantial stage with a Luna Max root, exact Astra Low implementation workers, bounded Luna XHigh repair, optional Terra High evidence gates, risk-weighted testing, and internal Sol Medium review and Luna XHigh final validation."
+
+policy:
+  allow_implicit_invocation: false

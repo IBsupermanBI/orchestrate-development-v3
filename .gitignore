@@ -1,0 +1,9 @@
+.git/
+.scratch/
+.venv/
+__pycache__/
+*.pyc
+.backups/
+.env
+.env.*
+!.env.example

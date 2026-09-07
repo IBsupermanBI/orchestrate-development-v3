@@ -1,0 +1,3 @@
+# Package maintenance
+
+This directory is a standalone Codex skill package. Read SKILL.md as the artifact being maintained, not as authorization to execute its workflow during maintenance. Keep manifest-listed skill files and all required agent profiles self-contained. Do not add dependencies on sibling packages, local user paths, hooks or secrets. Preserve the declared model/effort contracts and version unless requested. Installer changes require dry-run, disposable install, conflict, idempotence and path-containment tests. Do not publish caches, test artifacts, credentials or machine configuration. Project AGENTS.md is never modified automatically.

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "skill_name": "orchestrate-development-v3",
+  "project_assets": [
+    {
+      "source": "assets/project/.codex/agents/astra-low-worker.toml",
+      "destination": ".codex/agents/astra-low-worker.toml"
+    },
+    {
+      "source": "assets/project/.codex/agents/luna-xhigh-worker.toml",
+      "destination": ".codex/agents/luna-xhigh-worker.toml"
+    },
+    {
+      "source": "assets/project/.codex/agents/terra-high-gate.toml",
+      "destination": ".codex/agents/terra-high-gate.toml"
+    },
+    {
+      "source": "assets/project/.codex/agents/v3-sol-medium-reviewer.toml",
+      "destination": ".codex/agents/v3-sol-medium-reviewer.toml"
+    },
+    {
+      "source": "assets/project/.codex/agents/v3-luna-xhigh-validator.toml",
+      "destination": ".codex/agents/v3-luna-xhigh-validator.toml"
+    }
+  ],
+  "hook_asset": null,
+  "notes": "Self-contained skill and profiles. Hooks and telemetry are not dependencies.",
+  "skill_files": [
+    "README.md",
+    "SKILL.md",
+    "USER_GUIDE.md",
+    "agents/openai.yaml",
+    "assets/project/.codex/agents/astra-low-worker.toml",
+    "assets/project/.codex/agents/luna-xhigh-worker.toml",
+    "assets/project/.codex/agents/terra-high-gate.toml",
+    "assets/project/.codex/agents/v3-luna-xhigh-validator.toml",
+    "assets/project/.codex/agents/v3-sol-medium-reviewer.toml",
+    "docs/AGENTS.integration.md",
+    "install-manifest.json",
+    "references/FINAL_VALIDATION.md",
+    "references/INTERNAL_REVIEW.md",
+    "references/SPARK_ADAPTER.md",
+    "scripts/Invoke-OrchestratedSpark.ps1",
+    "scripts/OrchestrationState.psm1",
+    "scripts/check_orchestration_runtime.py",
+    "scripts/invoke_orchestrated_spark.py",
+    "scripts/orchestration_state.py"
+  ]
+}
