@@ -26,6 +26,7 @@
   "hook_asset": null,
   "notes": "Self-contained skill and profiles. Hooks and telemetry are not dependencies.",
   "skill_files": [
+    "LICENSE",
     "README.md",
     "SKILL.md",
     "USER_GUIDE.md",
