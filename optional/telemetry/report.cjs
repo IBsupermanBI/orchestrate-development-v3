@@ -2,8 +2,8 @@
 const {fs,path,read,hash,keys,redact}=require('./lib.cjs');
 function union(intervals,gap=0) { const out=[]; for(const [a,b] of intervals.filter(([a,b])=>Number.isFinite(a)&&b>=a).sort((x,y)=>x[0]-y[0])) { const last=out.at(-1); if(last&&a<=last[1]+gap) last[1]=Math.max(last[1],b); else out.push([a,b]); } return out; }
 const duration=xs=>xs.reduce((n,[a,b])=>n+(b-a)/1000,0);
-function load(files) { const seen=new Set(), rows=[]; for(const file of files) for(const line of fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'').split(/\r?\n/)) { if(!line.trim()) continue; let r; try { r=JSON.parse(line); } catch { continue; } const id=r.event_id||hash(r); if(seen.has(id)) continue; seen.add(id); rows.push({...r,event_id:id,project_name:r.project_name||r.project||'unknown',project_key:r.project_key||hash(process.platform==='win32'?String(r.project_root||r.cwd||r.project||'unknown').replace(/\\/g,'/').toLowerCase():String(r.project_root||r.cwd||r.project||'unknown')).slice(0,24),observed_model:r.observed_model||r.effective_model||r.model||null,workflow:r.workflow||'unknown',usage_additive:r.schema_version===3&&r.usage_additive===true,usage_scope:r.usage_scope||'unknown',usage_kind:r.usage_kind||'unknown'}); } return rows; }
-function price(r,card) { const u=r.token_usage; const rate=card?.rates?.filter(x=>x.model===r.observed_model&&x.effective_from<=(r.date||r.recorded_at||'').slice(0,10)).sort((a,b)=>b.effective_from.localeCompare(a.effective_from))[0]; if(!rate||!u||[u.input_tokens,u.cached_input_tokens,u.output_tokens,rate.input_rate,rate.cached_rate,rate.output_rate].some(x=>!Number.isFinite(x))||u.cached_input_tokens>u.input_tokens) return null; return ((u.input_tokens-u.cached_input_tokens)*rate.input_rate+u.cached_input_tokens*rate.cached_rate+u.output_tokens*rate.output_rate)/(card.tokens_per_unit||1e6); }
+function load(files) { const seen=new Set(), rows=[]; for(const file of files) for(const line of fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'').split(/\r?\n/)) { if(!line.trim()) continue; let r; try { r=JSON.parse(line); } catch { continue; } const id=r.event_id||hash(r); if(seen.has(id)) continue; seen.add(id); rows.push({...r,event_id:id,project_name:r.project_name||r.project||'unknown',project_key:r.project_key||hash(process.platform==='win32'?String(r.project_root||r.cwd||r.project||'unknown').replace(/\\/g,'/').toLowerCase():String(r.project_root||r.cwd||r.project||'unknown')).slice(0,24),observed_model:r.observed_model||r.effective_model||r.model||null,workflow:r.workflow||'unknown',usage_additive:[3,4].includes(r.schema_version)&&r.usage_additive===true,usage_scope:r.usage_scope||'unknown',usage_kind:r.usage_kind||'unknown'}); } return rows; }
+function price(r,card) { const u=r.token_usage; const rate=card?.rates?.filter(x=>x.model===(Object.hasOwn(r,'usage_model')?r.usage_model:r.observed_model)&&x.effective_from<=(r.date||r.recorded_at||'').slice(0,10)).sort((a,b)=>b.effective_from.localeCompare(a.effective_from))[0]; if(!rate||!u||[u.input_tokens,u.cached_input_tokens,u.output_tokens,rate.input_rate,rate.cached_rate,rate.output_rate].some(x=>!Number.isFinite(x))||u.cached_input_tokens>u.input_tokens) return null; return ((u.input_tokens-u.cached_input_tokens)*rate.input_rate+u.cached_input_tokens*rate.cached_rate+u.output_tokens*rate.output_rate)/(card.tokens_per_unit||1e6); }
 function build(rows,options={}) {
  rows=rows.filter(r=>(!options.project||[r.project_key,r.project_name,r.project_alias].includes(options.project))&&(!options.client||r.client_alias===options.client)&&(!options.workflow||r.workflow===options.workflow)&&(!options.model||r.observed_model===options.model));
  const from=options.from?Date.parse(options.from+'T00:00:00Z'):-Infinity,to=options.to?Date.parse(options.to+'T00:00:00Z')+86400000:Infinity;
@@ -11,12 +11,13 @@ function build(rows,options={}) {
  rows.sort((a,b)=>String(a.recorded_at).localeCompare(String(b.recorded_at)));
  for(const r of rows) {
   const key=[r.project_key,r.session_id,r.agent_id||'root',r.spark_call_id||r.call_id||r.turn_id||'unknown'].join('|');
-  if(r.event==='turn_started'||r.event==='subagent_started') starts.set(key,r.started_at||r.recorded_at);
+  if(r.event==='turn_started'||r.event==='subagent_started') if(!starts.has(key)||r.event==='turn_started'&&starts.get(key).event==='subagent_started')starts.set(key,r);
   if(r.event==='session_ended'&&r.started_at&&r.ended_at) sessions.set(r.session_id,[r.started_at,r.ended_at]);
   if(['turn_completed','turn_interrupted','subagent_completed'].includes(r.event)) {
    const b=Date.parse(r.ended_at||r.recorded_at), wall=r.turn_wall_clock??r.subagent_wall_clock??r.wall_clock_seconds;
-   const a=Date.parse(r.started_at||starts.get(key)||'')||(Number.isFinite(wall)?b-wall*1000:NaN);
-   const identity=r.agent_id?[r.project_key,r.session_id,r.agent_id,'child'].join('|'):key;
+   const begun=starts.get(key);const raw=Date.parse(begun?.started_at||begun?.recorded_at||r.started_at||'');
+   const a=Number.isFinite(raw)?raw:Number.isFinite(wall)?b-wall*1000:NaN;
+   const identity=key;
    if(Number.isFinite(a)&&b>=a) { const old=intervals.get(identity); intervals.set(identity,{r,a:old?Math.min(a,old.a):a,b:old?Math.max(b,old.b):b}); }
   }
   if(r.token_usage) { const k=[key,r.usage_scope,r.usage_kind].join('|'); usageRows.set(k,r); }
