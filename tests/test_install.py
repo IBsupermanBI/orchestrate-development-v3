@@ -29,6 +29,7 @@ class InstallTests(unittest.TestCase):
         self.assertFalse((self.target / '.codex/hooks.json').exists())
         self.assertFalse((self.target / 'AGENTS.md').exists())
         self.assertFalse((self.target / '.agents/skills' / manifest['skill_name'] / '.git').exists())
+        self.assertFalse((self.target / '.agents/skills' / manifest['skill_name'] / 'optional').exists())
         self.assertTrue(all(o['action'] == 'unchanged' for o in INSTALL.install(ROOT, self.target, apply=True)['operations']))
 
     def test_conflict_backup_and_unrelated_preservation(self):
