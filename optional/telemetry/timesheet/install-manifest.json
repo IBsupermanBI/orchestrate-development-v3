@@ -1,0 +1,11 @@
+{
+  "project_assets": [],
+  "skill_files": [
+    "SKILL.md",
+    "scripts/timesheet.cjs",
+    "credit-rates.json",
+    "references/credits.md",
+    "LICENSE"
+  ],
+  "skill_name": "timesheet"
+}

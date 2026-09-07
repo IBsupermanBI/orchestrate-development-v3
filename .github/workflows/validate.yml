@@ -18,3 +18,7 @@ jobs:
         with:
           node-version: '22'
       - run: node --test optional/telemetry/tests/*.test.cjs
+      - run: node --test optional/telemetry/timesheet/tests/*.test.cjs
+      - run: python optional/telemetry/timesheet/install.py --user --home .scratch/timesheet-install
+      - run: python optional/telemetry/timesheet/install.py --user --home .scratch/timesheet-install --apply
+      - run: node .scratch/timesheet-install/skills/timesheet/scripts/timesheet.cjs --help

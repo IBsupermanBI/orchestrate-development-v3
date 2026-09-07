@@ -33,6 +33,27 @@ node optional/telemetry/install.cjs --apply
 
 ## Отчёты
 
+### Глобальный скилл timesheet
+
+В комплект входит [timesheet](timesheet/README.md). Установка из корня репозитория (Python 3.11+):
+
+```sh
+python optional/telemetry/timesheet/install.py --user
+python optional/telemetry/timesheet/install.py --user --apply
+```
+
+Первый вызов показывает план, второй устанавливает скилл в `<Codex home>/skills/timesheet`. Для другого дома добавьте `--home PATH`. Хук и оркестрация не устанавливают его автоматически.
+
+- `$timesheet report` — Markdown за последние 7 дней по текущему проекту, в `.scratch/timesheets/`.
+- `$timesheet save` — JSON за тот же период в `.scratch/timesheets/` проекта.
+- `$timesheet current` — текущая задача за всё время, включая подтверждённо связанные дочерние задачи и субагентов; без обязательного сохранения файла.
+
+Период и фильтры уточняются обычным текстом. Для `current` при необходимости читаются локальные transcripts выбранных задач. Неполные данные и накопительные снимки показываются отдельно.
+
+В скилле есть [датированный снимок официальных ставок кредитов](timesheet/references/credits.md). Это оценка кредитного эквивалента, не точный процент расхода лимитов подписки. Его ставки независимы от пустого `rate-card.json` генератора ниже.
+
+### Прямой запуск генератора
+
 ```sh
 node optional/telemetry/report.cjs /path/to/events-2026-09.jsonl --out .scratch/timesheet
 ```

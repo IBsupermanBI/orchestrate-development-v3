@@ -1,0 +1,4 @@
+tests/fixture-*/
+__pycache__/
+.scratch/
+.backups/
